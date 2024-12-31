@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NoFaceChat</title>
+    <title>NoFaceChat 2</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -60,15 +60,6 @@
             border-radius: 4px;
             margin-left: 10px;
         }
-        @media (max-width: 600px) {
-            #username-input, #message-input, #send-button {
-                font-size: 14px;
-                padding: 8px;
-            }
-            .message {
-                font-size: 12px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -89,11 +80,11 @@
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
 
-        // Load messages from localStorage
+        // Load and display messages from localStorage
         function loadMessages() {
             const messages = JSON.parse(localStorage.getItem('messages')) || [];
-            messagesDiv.innerHTML = ''; // Clear existing messages
 
+            messagesDiv.innerHTML = '';  // Clear existing messages
             messages.forEach(msg => {
                 const messageDiv = document.createElement('div');
                 messageDiv.classList.add('message');
@@ -101,18 +92,19 @@
                 messagesDiv.appendChild(messageDiv);
             });
 
-            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to the bottom
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;  // Scroll to the bottom
         }
 
         // Save a new message to localStorage
         function saveMessage(username, content) {
-            const messages = JSON.parse(localStorage.getItem('messages')) || [];
             const timestamp = new Date().toISOString();
+            const messages = JSON.parse(localStorage.getItem('messages')) || [];
+
             messages.push({ username, content, timestamp });
             localStorage.setItem('messages', JSON.stringify(messages));
         }
 
-        // Send a new message
+        // Send a new message when button is clicked
         function sendMessage() {
             const username = usernameInput.value.trim();
             const message = messageInput.value.trim();
@@ -122,16 +114,10 @@
                 return;
             }
 
-            saveMessage(username, message);
-            messageInput.value = ''; // Clear the input field
-            loadMessages(); // Refresh messages
+            saveMessage(username, message);  // Save message to localStorage
+            loadMessages();  // Refresh the displayed messages
+            messageInput.value = '';  // Clear the input field
         }
-
-        // Initialize chat on page load
-        loadMessages();
-
-        // Send message on button click
-        sendButton.addEventListener('click', sendMessage);
 
         // Send message on pressing Enter key
         messageInput.addEventListener('keydown', event => {
@@ -140,8 +126,11 @@
             }
         });
 
-        // Periodically refresh messages (optional, for simulated real-time experience)
-        setInterval(loadMessages, 3000);
+        // Event listener for the send button
+        sendButton.addEventListener('click', sendMessage);
+
+        // Load messages when the page loads
+        loadMessages();
     </script>
 </body>
 </html>
