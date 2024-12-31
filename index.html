@@ -89,28 +89,27 @@
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
 
-        // Fetch and display messages
+        // Load messages from localStorage
         function loadMessages() {
-            fetch('chat.php')
-                .then(response => response.text())
-                .then(data => {
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(data, 'application/xml');
-                    const messages = xmlDoc.getElementsByTagName('message');
+            const messages = JSON.parse(localStorage.getItem('messages')) || [];
+            messagesDiv.innerHTML = ''; // Clear existing messages
 
-                    messagesDiv.innerHTML = ''; // Clear existing messages
-                    Array.from(messages).forEach(msg => {
-                        const username = msg.getElementsByTagName('username')[0].textContent;
-                        const content = msg.getElementsByTagName('content')[0].textContent;
-                        const timestamp = msg.getElementsByTagName('timestamp')[0].textContent;
+            messages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.innerHTML = `[${msg.timestamp}] <strong>${msg.username}:</strong> ${msg.content}`;
+                messagesDiv.appendChild(messageDiv);
+            });
 
-                        const messageDiv = document.createElement('div');
-                        messageDiv.classList.add('message');
-                        messageDiv.innerHTML = `[${timestamp}] <strong>${username}:</strong> ${content}`;
-                        messagesDiv.appendChild(messageDiv);
-                    });
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to the bottom
-                });
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to the bottom
+        }
+
+        // Save a new message to localStorage
+        function saveMessage(username, content) {
+            const messages = JSON.parse(localStorage.getItem('messages')) || [];
+            const timestamp = new Date().toISOString();
+            messages.push({ username, content, timestamp });
+            localStorage.setItem('messages', JSON.stringify(messages));
         }
 
         // Send a new message
@@ -123,20 +122,12 @@
                 return;
             }
 
-            const formData = new FormData();
-            formData.append('username', username);
-            formData.append('message', message);
-
-            fetch('chat.php', {
-                method: 'POST',
-                body: formData
-            }).then(() => {
-                messageInput.value = ''; // Clear the input field
-                loadMessages(); // Refresh messages
-            });
+            saveMessage(username, message);
+            messageInput.value = ''; // Clear the input field
+            loadMessages(); // Refresh messages
         }
 
-        // Load messages when the page loads
+        // Initialize chat on page load
         loadMessages();
 
         // Send message on button click
@@ -149,7 +140,7 @@
             }
         });
 
-        // Periodically refresh messages
+        // Periodically refresh messages (optional, for simulated real-time experience)
         setInterval(loadMessages, 3000);
     </script>
 </body>
